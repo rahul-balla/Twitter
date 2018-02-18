@@ -54,7 +54,6 @@ class APIManager: SessionManager {
         clearCredentials()
         
         // TODO: Clear current user by setting it to nil
-
         NotificationCenter.default.post(name: NSNotification.Name("didLogout"), object: nil)
     }
 
