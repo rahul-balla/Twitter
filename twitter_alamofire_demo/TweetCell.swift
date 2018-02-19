@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Alamofire
+import AlamofireI
 
 class TweetCell: UITableViewCell {
     
@@ -18,18 +18,34 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var nameText: UILabel!
     @IBOutlet weak var dateCreated: UILabel!
     @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var retweetButton: UIButton!
+    @IBOutlet weak var favoriteButton: UIButton!
     
     var tweet: Tweet! {
         didSet {
             tweetTextLabel.text = tweet.text
             nameText.text = tweet.user.name
-            let retweetCountText = String(describing: tweet.retweetCount)
+             let retweetCountText = String(describing: tweet.retweetCount)
             retweetCount.text = retweetCountText
             let favoriteCountText = String(describing: tweet.favoriteCount!)
             favoriteCount.text = favoriteCountText
             usernameText.text = "@" + tweet.user.screenName
             dateCreated.text = tweet.createdAtString
-//            profileImageVie
+//            profileImageView.aff_
+            
+            if (tweet.retweeted){
+                retweetButton.setImage( #imageLiteral(resourceName: "retweet-icon"), for: UIControlState.normal)
+            }
+            else{
+                retweetButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: UIControlState.normal)
+            }
+            
+            if(tweet.favorited)!{
+                favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: UIControlState.normal)
+            }
+            else{
+                favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: UIControlState.normal)
+            }
         }
     }
     
