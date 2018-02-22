@@ -8,10 +8,13 @@
 
 import UIKit
 
-class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
     
     var tweets: [Tweet] = []
     var refreshControl: UIRefreshControl!
+    var isMoreDataLoading = false
+    var counter = 20
+    
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -28,26 +31,27 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         refreshControl.addTarget(self, action: #selector(refreshControlFunction), for: .valueChanged)
         tableView.insertSubview(refreshControl, at: 0)
         
-        APIManager.shared.getHomeTimeLine { (tweets, error) in
+        APIManager.shared.getHomeTimeLine(counter: counter, completion: { (tweets, error) in
             if let tweets = tweets {
                 self.tweets = tweets
                 self.tableView.reloadData()
             } else if let error = error {
-                print("Error getting home timeline: " + error.localizedDescription)
+                print("Error viewdidload getting home timeline: " + error.localizedDescription)
             }
-        }
+        })
     }
     
     func refreshControlFunction(){
-        APIManager.shared.getHomeTimeLine { (tweets, error) in
+        counter = 20
+        APIManager.shared.getHomeTimeLine(counter: counter,completion: { (tweets, error) in
             if let tweets = tweets {
                 self.tweets = tweets
                 self.tableView.reloadData()
                 self.refreshControl.endRefreshing()
             } else if let error = error {
-                print("Error getting home timeline: " + error.localizedDescription)
+                print("Error refreshcontrolfunction getting home timeline: " + error.localizedDescription)
             }
-        }
+        })
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -61,6 +65,58 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         
         return cell
     }
+    
+    
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//
+//        APIManager.shared.getHomeTimeLine(/*counter: counter, */completion: { (tweets, error) in
+//            if let tweets = tweets {
+//                self.tweets = tweets
+//                self.tableView.reloadData()
+//            } else if let error = error {
+//                print("Error viewWillAppear getting home timeline: " + error.localizedDescription)
+//            }
+//        })
+//    }
+    
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (!isMoreDataLoading){
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging) {
+
+                isMoreDataLoading = true
+
+                // Code to load more results
+                if (counter < 200){
+                    counter += 10
+                }
+
+                reload(at: counter)
+            }
+        }
+    }
+    
+    func reload(at: Int){
+        APIManager.shared.getHomeTimeLine(counter: counter, completion: { (tweets, error) in
+            if let tweets = tweets {
+                self.tweets = tweets
+                self.tableView.reloadData()
+                self.isMoreDataLoading = false
+//                self.refreshControl.endRefreshing()
+
+            }// else if let error = error {
+//                print("Error reload getting home timeline: " + error.localizedDescription)
+//            }
+        })
+    }
+    
+    
+    
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
