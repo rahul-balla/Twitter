@@ -7,14 +7,14 @@
 //
 
 import UIKit
-import AlamofireI
+import AlamofireImage
 
 class TweetCell: UITableViewCell {
     
     @IBOutlet weak var tweetTextLabel: UILabel!
     @IBOutlet weak var usernameText: UILabel!
-    @IBOutlet weak var retweetCount: UILabel!
-    @IBOutlet weak var favoriteCount: UILabel!
+    @IBOutlet weak var retweetCounter: UILabel!
+    @IBOutlet weak var favoriteCounter: UILabel!
     @IBOutlet weak var nameText: UILabel!
     @IBOutlet weak var dateCreated: UILabel!
     @IBOutlet weak var profileImageView: UIImageView!
@@ -26,27 +26,104 @@ class TweetCell: UITableViewCell {
             tweetTextLabel.text = tweet.text
             nameText.text = tweet.user.name
              let retweetCountText = String(describing: tweet.retweetCount)
-            retweetCount.text = retweetCountText
+            retweetCounter.text = retweetCountText
             let favoriteCountText = String(describing: tweet.favoriteCount!)
-            favoriteCount.text = favoriteCountText
+            favoriteCounter.text = favoriteCountText
             usernameText.text = "@" + tweet.user.screenName
             dateCreated.text = tweet.createdAtString
-//            profileImageView.aff_
+            profileImageView.af_setImage(withURL: URL(string: tweet.profileImageURL)!)
             
             if (tweet.retweeted){
-                retweetButton.setImage( #imageLiteral(resourceName: "retweet-icon"), for: UIControlState.normal)
+                print("wow")
+                let image = UIImage(named: "retweet-icon-green")
+                retweetButton.setImage(image, for: .normal)
+                
             }
             else{
-                retweetButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: UIControlState.normal)
+                let image = UIImage(named: "retweet-icon")
+                retweetButton.setImage(image, for: .normal)
             }
-            
-            if(tweet.favorited)!{
-                favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: UIControlState.normal)
-            }
-            else{
-                favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: UIControlState.normal)
-            }
+//            
+//            if(tweet.favorited)!{
+//                favoriteButton.setImage(UIImage(named: "favor-icon-red"), for: .normal)
+//            }
+//            else{
+////                let image = UIImage(named: "favor-icon-red")
+////                favoriteButton.setImage(image, for: .normal)
+//            }
         }
+    }
+    
+    @IBAction func didTapRetweet(_ sender: Any) {
+        
+        if(tweet.retweeted){
+            tweet.retweeted = !tweet.retweeted
+            tweet.retweetCount -= 1
+            
+            retweetCounter.text = String(describing: tweet.retweetCount)
+            
+            APIManager.shared.favorite(tweet) { (tweet: Tweet?, error: Error?) in
+                if let  error = error {
+                    print("Error favoriting tweet: \(error.localizedDescription)")
+                } else if let tweet = tweet {
+                    print("Successfully favorited the following Tweet: \n\(tweet.text)")
+                }
+            }
+            retweetButton.setImage(UIImage(named: "retweet-icon"), for: .normal)
+        }
+        else{
+            tweet.retweeted = !tweet.retweeted
+            tweet.retweetCount += 1
+            
+            retweetCounter.text = String(describing: tweet.retweetCount)
+            
+            APIManager.shared.favorite(tweet) { (tweet: Tweet?, error: Error?) in
+                if let  error = error {
+                    print("Error favoriting tweet: \(error.localizedDescription)")
+                } else if let tweet = tweet {
+                    print("Successfully favorited the following Tweet: \n\(tweet.text)")
+                }
+            }
+            retweetButton.setImage(UIImage(named: "retweet-icon-green"), for: .normal)
+        }
+        
+        
+    }
+    
+    
+    @IBAction func didTapFavorite(_ sender: Any) {
+        
+        if(tweet.favorited)!{
+            tweet.favorited = !tweet.favorited!
+            tweet.favoriteCount! -= 1
+            
+            favoriteCounter.text = String(describing: tweet.favoriteCount!)
+            
+            APIManager.shared.favorite(tweet) { (tweet: Tweet?, error: Error?) in
+                if let  error = error {
+                    print("Error favoriting tweet: \(error.localizedDescription)")
+                } else if let tweet = tweet {
+                    print("Successfully favorited the following Tweet: \n\(tweet.text)")
+                }
+            }
+            favoriteButton.setImage(UIImage(named: "favor-icon"), for: .normal)
+        }
+        else{
+            tweet.favorited = !tweet.favorited!
+            tweet.favoriteCount! += 1
+            
+            favoriteCounter.text = String(describing: tweet.favoriteCount!)
+            
+            APIManager.shared.favorite(tweet) { (tweet: Tweet?, error: Error?) in
+                if let  error = error {
+                    print("Error favoriting tweet: \(error.localizedDescription)")
+                } else if let tweet = tweet {
+                    print("Successfully favorited the following Tweet: \n\(tweet.text)")
+                }
+            }
+            favoriteButton.setImage(UIImage(named: "favor-icon-red"), for: .normal)
+        }
+        
     }
     
     override func awakeFromNib() {
