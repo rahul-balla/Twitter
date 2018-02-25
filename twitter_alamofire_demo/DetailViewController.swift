@@ -1,37 +1,42 @@
 //
-//  TweetCell.swift
+//  DetailViewController.swift
 //  twitter_alamofire_demo
 //
-//  Created by Charles Hieger on 6/18/17.
-//  Copyright © 2017 Charles Hieger. All rights reserved.
+//  Created by Rahul Balla on 2/24/18.
+//  Copyright © 2018 Charles Hieger. All rights reserved.
 //
 
 import UIKit
 import AlamofireImage
 
-class TweetCell: UITableViewCell {
+class DetailViewController: UIViewController {
+
     
-    @IBOutlet weak var tweetTextLabel: UILabel!
-    @IBOutlet weak var usernameText: UILabel!
-    @IBOutlet weak var retweetCounter: UILabel!
-    @IBOutlet weak var favoriteCounter: UILabel!
-    @IBOutlet weak var nameText: UILabel!
-    @IBOutlet weak var dateCreated: UILabel!
-    @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var pictureImageView: UIImageView!
+    @IBOutlet weak var username: UILabel!
+    @IBOutlet weak var userScreenName: UILabel!
+    @IBOutlet weak var tweetDetail: UILabel!
+    @IBOutlet weak var replyImage: UIImageView!
     @IBOutlet weak var retweetButton: UIButton!
-    @IBOutlet weak var favoriteButton: UIButton!
+    @IBOutlet weak var retweetCounter: UILabel!
+    @IBOutlet weak var favorButton: UIButton!
+    @IBOutlet weak var favCount: UILabel!
+    @IBOutlet weak var messageButton: UIImageView!
+    @IBOutlet weak var dateCreated: UILabel!
     
-    var tweet: Tweet! {
-        didSet {
-            tweetTextLabel.text = tweet.text
-            nameText.text = tweet.user.name
-             let retweetCountText = String(describing: tweet.retweetCount)
-            retweetCounter.text = retweetCountText
-            let favoriteCountText = String(describing: tweet.favoriteCount!)
-            favoriteCounter.text = favoriteCountText
-            usernameText.text = "@" + tweet.user.screenName
+    var tweet: Tweet!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        if let tweet = tweet {
+            pictureImageView.af_setImage(withURL: URL(string: tweet.profileImageURL)!)
+            username.text = tweet.user.name
+            userScreenName.text = "@" + tweet.user.screenName
+            tweetDetail.text = tweet.text
+            retweetCounter.text = "\(tweet.retweetCount)"
+            favCount.text = "\(tweet.favoriteCount!)"
             dateCreated.text = tweet.createdAtString
-            profileImageView.af_setImage(withURL: URL(string: tweet.profileImageURL)!)
             
             if (tweet.retweeted){
                 print("wow")
@@ -45,17 +50,18 @@ class TweetCell: UITableViewCell {
             }
             
             if(tweet.favorited)!{
-                favoriteButton.setImage(UIImage(named: "favor-icon-red"), for: .normal)
+                favorButton.setImage(UIImage(named: "favor-icon-red"), for: .normal)
             }
             else{
                 let image = UIImage(named: "favor-icon")
-                favoriteButton.setImage(image, for: .normal)
+                favorButton.setImage(image, for: .normal)
             }
         }
+
+        // Do any additional setup after loading the view.
     }
     
     @IBAction func didTapRetweet(_ sender: Any) {
-        
         if(tweet.retweeted){
             tweet.retweeted = !tweet.retweeted
             tweet.retweetCount -= 1
@@ -86,18 +92,15 @@ class TweetCell: UITableViewCell {
             }
             retweetButton.setImage(UIImage(named: "retweet-icon-green"), for: .normal)
         }
-        
-        
     }
     
     
     @IBAction func didTapFavorite(_ sender: Any) {
-        
         if(tweet.favorited)!{
             tweet.favorited = !tweet.favorited!
             tweet.favoriteCount! -= 1
             
-            favoriteCounter.text = String(describing: tweet.favoriteCount!)
+            favCount.text = String(describing: tweet.favoriteCount!)
             
             APIManager.shared.favorite(tweet) { (tweet: Tweet?, error: Error?) in
                 if let  error = error {
@@ -106,13 +109,13 @@ class TweetCell: UITableViewCell {
                     print("Successfully favorited the following Tweet: \n\(tweet.text)")
                 }
             }
-            favoriteButton.setImage(UIImage(named: "favor-icon"), for: .normal)
+            favorButton.setImage(UIImage(named: "favor-icon"), for: .normal)
         }
         else{
             tweet.favorited = !tweet.favorited!
             tweet.favoriteCount! += 1
             
-            favoriteCounter.text = String(describing: tweet.favoriteCount!)
+            favCount.text = String(describing: tweet.favoriteCount!)
             
             APIManager.shared.favorite(tweet) { (tweet: Tweet?, error: Error?) in
                 if let  error = error {
@@ -121,20 +124,24 @@ class TweetCell: UITableViewCell {
                     print("Successfully favorited the following Tweet: \n\(tweet.text)")
                 }
             }
-            favoriteButton.setImage(UIImage(named: "favor-icon-red"), for: .normal)
+            favorButton.setImage(UIImage(named: "favor-icon-red"), for: .normal)
         }
-        
     }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
+
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
     }
-    
+    */
+
 }

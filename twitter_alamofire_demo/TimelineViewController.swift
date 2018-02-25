@@ -8,12 +8,17 @@
 
 import UIKit
 
-class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
+class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, ComposeTweetViewControllerDelegate {
+    
+    func did(post: Tweet) {
+        print("YAY!")
+    }
     
     var tweets: [Tweet] = []
     var refreshControl: UIRefreshControl!
     var isMoreDataLoading = false
     var counter = 20
+    var tapped: UITapGestureRecognizer!
     
     
     @IBOutlet weak var tableView: UITableView!
@@ -70,7 +75,7 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
 //    override func viewWillAppear(_ animated: Bool) {
 //        super.viewWillAppear(animated)
 //
-//        APIManager.shared.getHomeTimeLine(/*counter: counter, */completion: { (tweets, error) in
+//        APIManager.shared.getHomeTimeLine(counter: counter, completion: { (tweets, error) in
 //            if let tweets = tweets {
 //                self.tweets = tweets
 //                self.tableView.reloadData()
@@ -115,11 +120,26 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         })
     }
     
-    
-    
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if(segue.identifier == "detailSegue"){
+            let cell = sender as! UITableViewCell
+            if let indexPath = tableView.indexPath(for: cell){
+                let tweet = tweets[indexPath.row]
+                let destination = segue.destination as! DetailViewController
+                destination.tweet = tweet
+            }
+        }
+        
+        if(segue.identifier == "tweetSegue"){
+            let destination = segue.destination as! ComposeTweetViewController
+            
+        }
     }
     
     override func didReceiveMemoryWarning() {
