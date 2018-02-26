@@ -28,6 +28,8 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
         textView.layer.cornerRadius = 8
         textView.layer.backgroundColor = UIColor.white.cgColor
         
+        charCount.text = "140"
+        
         textView.delegate = self
         // Do any additional setup after loading the view.
     }
@@ -59,6 +61,7 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
             } else if let tweet = tweet {
                 self.delegate?.did(post: tweet)
                 print("Compose Tweet Success!")
+                self.performSegue(withIdentifier: "homeSegue", sender: self)
             }
         }
     }

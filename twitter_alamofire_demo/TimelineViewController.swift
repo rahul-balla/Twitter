@@ -21,6 +21,7 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     var tapped: UITapGestureRecognizer!
     
     
+    
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
